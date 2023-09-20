@@ -6,7 +6,7 @@
   "scripts": {
     "db:import": "sh database/import.sh",
     "dev:db": "pgweb --db=`awk 'BEGIN { FS = \"/\" } ; /DATABASE_URL=/ {print $NF}' server/.env`",
-    "dev:client": "npm run dev --prefix client",
+    "x": "npm run dev --prefix client",
     "dev:server": "npm run dev --prefix server",
     "dev": "npm-run-all --parallel --print-label dev:*",
     "install:client": "npm install --prefix client",
