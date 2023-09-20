@@ -1,6 +1,6 @@
 import { useState } from 'react';
-// import { addEntry, removeEntry, updateEntry } from './data';
 import { removeEntry } from './data';
+
 /**
  * Form that adds or edits an entry.
  * If `entry` is `null`, adds an entry.
@@ -14,13 +14,13 @@ export default function EntryForm({ entry, onSubmit }) {
 
   const [error, setError] = useState();
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
     const newEntry = { title, notes, photoUrl };
     if (entry) {
-      // updateEntry({ ...entry, ...newEntry });
+      await updateEntry({ ...entry, ...newEntry });
     } else {
-      addEntry(newEntry);
+      await addEntry(newEntry);
     }
     onSubmit();
   }
@@ -43,6 +43,26 @@ export default function EntryForm({ entry, onSubmit }) {
       const res = await fetch('/api/entries', postRequest);
       if (!res.ok) throw new Error(`Error: , status code: ${res.status}`);
       res.json();
+    } catch (error) {
+      setError(error);
+    }
+  }
+
+  async function updateEntry(updatedEntry) {
+    try {
+      console.log(updatedEntry);
+      const putRequest = {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedEntry),
+      };
+      const res = await fetch(
+        `/api/entries/${updatedEntry.entryId}`,
+        putRequest
+      );
+      if (!res.ok) throw new Error(`Error: , status code: ${res.status}`);
     } catch (error) {
       setError(error);
     }
