@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { addEntry, removeEntry, updateEntry } from './data';
 
 /**
  * Form that adds or edits an entry.
@@ -12,20 +11,78 @@ export default function EntryForm({ entry, onSubmit }) {
   const [notes, setNotes] = useState(entry?.notes ?? '');
   const [isDeleting, setIsDeleting] = useState(false);
 
-  function handleSubmit(event) {
+  const [error, setError] = useState();
+
+  async function handleSubmit(event) {
     event.preventDefault();
-    const newEntry = { title, photoUrl, notes };
+    const newEntry = { title, notes, photoUrl };
     if (entry) {
-      updateEntry({ ...entry, ...newEntry });
+      await updateEntry({ ...entry, ...newEntry });
     } else {
-      addEntry(newEntry);
+      await addEntry(newEntry);
     }
     onSubmit();
   }
 
   function handleDelete() {
-    removeEntry(entry.entryId);
+    deleteEntry(entry);
     onSubmit();
+  }
+
+  async function addEntry(newTodo) {
+    try {
+      const postRequest = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newTodo),
+      };
+      const res = await fetch('/api/entries', postRequest);
+      if (!res.ok) throw new Error(`Error: , status code: ${res.status}`);
+      res.json();
+    } catch (error) {
+      setError(error);
+    }
+  }
+
+  async function updateEntry(updatedEntry) {
+    try {
+      const putRequest = {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedEntry),
+      };
+      const res = await fetch(
+        `/api/entries/${updatedEntry.entryId}`,
+        putRequest
+      );
+      if (!res.ok) throw new Error(`Error: , status code: ${res.status}`);
+    } catch (error) {
+      setError(error);
+    }
+  }
+
+  async function deleteEntry(deletedEntry) {
+    try {
+      const deleteRequest = {
+        method: 'DELETE',
+      };
+      const res = await fetch(
+        `/api/entries/${deletedEntry.entryId}`,
+        deleteRequest
+      );
+      if (!res.ok) throw new Error(`Error: , status code: ${res.status}`);
+    } catch (error) {
+      setError(error);
+    }
+  }
+
+  if (error) {
+    console.error('Fetch error:', error);
+    return <div>Error! {error.message}</div>;
   }
 
   return (

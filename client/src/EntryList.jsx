@@ -1,8 +1,36 @@
 import { FaPencilAlt } from 'react-icons/fa';
-import { readEntries } from './data';
+// import { readEntries } from './data';
+import { useEffect, useState } from 'react';
 
 export default function EntryList({ onCreate, onEdit }) {
-  const entries = readEntries();
+  const [entries, setEntries] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState();
+
+  useEffect(() => {
+    async function fetchTodo() {
+      try {
+        const res = await fetch('/api/entries');
+        if (!res.ok) throw new Error(`Error: , status code: ${res.status}`);
+        const todo = await res.json();
+        setEntries(todo);
+      } catch (error) {
+        setError(error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchTodo();
+  }, []);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+  if (error) {
+    console.error('Fetch error:', error);
+    return <div>Error! {error.message}</div>;
+  }
+
   return (
     <div className="container">
       <div className="row">
