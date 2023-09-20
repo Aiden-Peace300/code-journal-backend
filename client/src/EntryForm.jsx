@@ -12,6 +12,8 @@ export default function EntryForm({ entry, onSubmit }) {
   const [notes, setNotes] = useState(entry?.notes ?? '');
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const [error, setError] = useState();
+
   function handleSubmit(event) {
     event.preventDefault();
     const newEntry = { title, notes, photoUrl };
@@ -42,8 +44,13 @@ export default function EntryForm({ entry, onSubmit }) {
       if (!res.ok) throw new Error(`Error: , status code: ${res.status}`);
       res.json();
     } catch (error) {
-      // setError(error);
+      setError(error);
     }
+  }
+
+  if (error) {
+    console.error('Fetch error:', error);
+    return <div>Error! {error.message}</div>;
   }
 
   return (
