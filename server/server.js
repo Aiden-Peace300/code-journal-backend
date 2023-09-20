@@ -74,6 +74,51 @@ app.post('/api/entries', async (req, res) => {
   }
 });
 
+app.put('/api/entries/:entryId', async (req, res, next) => {
+  try {
+    const { title, notes, photoUrl } = req.body;
+    const { entryId } = req.params;
+    if (!title || !notes || !photoUrl) {
+      // Handling client validation errors with a 400 status code
+      res.status(400).json({ error: 'Invalid entry data.' });
+    } else {
+      const updateSql = `update "entries"
+                        set "title" = $1, "notes" = $2, "photoUrl" = $3
+                        where "entryId" = $4
+                        returning *`;
+      const updateParams = [title, notes, photoUrl, entryId];
+      const result = await db.query(updateSql, updateParams);
+      const entry = result.rows[0];
+      res.status(200).json(entry);
+    }
+  } catch (error) {
+    next(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.delete('/api/entries/:entryId', async (req, res, next) => {
+  try {
+    const entryId = Number(req.params.entryId);
+    const deleteSql = `delete from "entries"
+                        where "entryId" = $1
+                        returning *`;
+    const deleteParams = [entryId];
+    const result = await db.query(deleteSql, deleteParams);
+    const entry = result.rows[0];
+    if (entry) {
+      res.sendStatus(204);
+    } else {
+      res
+        .status(404)
+        .json({ error: `Cannot find grade with "gradeId" ${entryId}` });
+    }
+  } catch (error) {
+    next(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 app.listen(process.env.PORT, () => {
   console.log(`express server listening on port ${process.env.PORT}`);
 });
