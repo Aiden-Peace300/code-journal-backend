@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { removeEntry } from './data';
 
 /**
  * Form that adds or edits an entry.
@@ -26,11 +25,10 @@ export default function EntryForm({ entry, onSubmit }) {
   }
 
   function handleDelete() {
-    removeEntry(entry.entryId);
+    deleteEntry(entry);
     onSubmit();
   }
 
-  /* Implement addTodo to add a new todo. Hints are at the bottom of the file. */
   async function addEntry(newTodo) {
     try {
       const postRequest = {
@@ -50,7 +48,6 @@ export default function EntryForm({ entry, onSubmit }) {
 
   async function updateEntry(updatedEntry) {
     try {
-      console.log(updatedEntry);
       const putRequest = {
         method: 'PUT',
         headers: {
@@ -61,6 +58,21 @@ export default function EntryForm({ entry, onSubmit }) {
       const res = await fetch(
         `/api/entries/${updatedEntry.entryId}`,
         putRequest
+      );
+      if (!res.ok) throw new Error(`Error: , status code: ${res.status}`);
+    } catch (error) {
+      setError(error);
+    }
+  }
+
+  async function deleteEntry(deletedEntry) {
+    try {
+      const deleteRequest = {
+        method: 'DELETE',
+      };
+      const res = await fetch(
+        `/api/entries/${deletedEntry.entryId}`,
+        deleteRequest
       );
       if (!res.ok) throw new Error(`Error: , status code: ${res.status}`);
     } catch (error) {
