@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { addEntry, removeEntry, updateEntry } from './data';
-
+// import { addEntry, removeEntry, updateEntry } from './data';
+import { removeEntry } from './data';
 /**
  * Form that adds or edits an entry.
  * If `entry` is `null`, adds an entry.
@@ -14,9 +14,9 @@ export default function EntryForm({ entry, onSubmit }) {
 
   function handleSubmit(event) {
     event.preventDefault();
-    const newEntry = { title, photoUrl, notes };
+    const newEntry = { title, notes, photoUrl };
     if (entry) {
-      updateEntry({ ...entry, ...newEntry });
+      // updateEntry({ ...entry, ...newEntry });
     } else {
       addEntry(newEntry);
     }
@@ -26,6 +26,24 @@ export default function EntryForm({ entry, onSubmit }) {
   function handleDelete() {
     removeEntry(entry.entryId);
     onSubmit();
+  }
+
+  /* Implement addTodo to add a new todo. Hints are at the bottom of the file. */
+  async function addEntry(newTodo) {
+    try {
+      const postRequest = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newTodo),
+      };
+      const res = await fetch('/api/entries', postRequest);
+      if (!res.ok) throw new Error(`Error: , status code: ${res.status}`);
+      res.json();
+    } catch (error) {
+      // setError(error);
+    }
   }
 
   return (

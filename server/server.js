@@ -16,7 +16,7 @@ const app = express();
 // middleware to parse JSON request bodies
 app.use(express.json());
 
-// Defining a route to handle GET requests to retrieve all grades
+// // Defining a route to handle GET requests to retrieve all grades
 app.get('/api/entries', async (req, res) => {
   console.log('hit me');
   try {
